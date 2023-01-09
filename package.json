@@ -26,7 +26,8 @@
     "gulp-sass": "^4.1.0",
     "imagemin-mozjpeg": "^9.0.0",
     "imagemin-pngquant": "^9.0.2",
-    "postcss": "^8.2.8"
+    "postcss": "^8.2.8",
+    "sass": "^1.57.1"
   },
   "dependencies": {}
 }

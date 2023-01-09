@@ -5,6 +5,7 @@ var notify = require("gulp-notify");
 var plumber = require("gulp-plumber");
 var pug = require("gulp-pug");
 var sass = require("gulp-sass");
+sass.compiler = require("sass");
 var autoprefixer = require("gulp-autoprefixer");
 var imagemin = require("gulp-imagemin");
 var pngquant = require("imagemin-pngquant");
@@ -64,7 +65,7 @@ gulp.task("sass", function () {
     .src("src/**/*.scss", { base: "./scss" })
     .pipe(
       sass({
-        outputStyle: "compact",
+        outputStyle: "expanded",
       })
     )
     .pipe(autoprefixer())
