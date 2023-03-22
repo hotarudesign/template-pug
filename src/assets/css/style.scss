@@ -1,9 +1,4 @@
 @charset 'UTF-8';
 @use "./page/header";
 @use "./page/footer";
-$sp: 500px;
-@mixin sp {
-  @media (max-width: ($sp)) {
-    @content;
-  }
-}
+

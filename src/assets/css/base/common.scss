@@ -1,10 +1,6 @@
 @charset 'UTF-8';
-$sp: 500px;
-@mixin sp {
-  @media (max-width: ($sp)) {
-    @content;
-  }
-}
+@use "./base/variable" as v;
+
 html {
   font-size: 100%;
   @include sp {
