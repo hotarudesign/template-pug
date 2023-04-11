@@ -1,5 +1,5 @@
 $sp: 500px;
-@mixin sp {
+@mixin xs {
   @media (max-width: ($sp)) {
     @content;
   }

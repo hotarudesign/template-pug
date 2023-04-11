@@ -1,9 +1,9 @@
 @charset 'UTF-8';
-@use "./base/variable" as v;
+@use "./variable" as v;
 
 html {
   font-size: 100%;
-  @include sp {
+  @include v.xs {
     font-size: 62.5%;
   }
 }
