@@ -1,6 +1,36 @@
-$sp: 500px;
-@mixin xs {
-  @media (max-width: ($sp)) {
+$sm: 576px;
+$md: 768px;
+$lg: 992px;
+$xl: 1200px;
+$xxl: 1440px;
+
+// 1440px以下
+@mixin xxl {
+  @media (max-width: ($xxl)) {
+    @content;
+  }
+}
+// 1200px未満
+@mixin xl {
+  @media not screen and (min-width: ($xl)) {
+    @content;
+  }
+}
+// 992px未満
+@mixin lg {
+  @media not screen and (min-width: ($lg)) {
+    @content;
+  }
+}
+// 768px未満
+@mixin md {
+  @media not screen and (min-width: ($md)) {
+    @content;
+  }
+}
+// 576px未満
+@mixin sm {
+  @media not screen and (min-width: ($sm)) {
     @content;
   }
 }

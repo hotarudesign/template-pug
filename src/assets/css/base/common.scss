@@ -2,8 +2,7 @@
 @use "./variable" as v;
 
 html {
-  font-size: 100%;
-  @include v.xs {
+  @include v.sm {
     font-size: 62.5%;
   }
 }
