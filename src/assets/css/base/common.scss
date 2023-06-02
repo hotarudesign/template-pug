@@ -2,9 +2,7 @@
 @use "./variable" as v;
 
 html {
-  @include v.sm {
-    font-size: 62.5%;
-  }
+  font-size: 62.5%;
 }
 img {
   max-width: 100%;
