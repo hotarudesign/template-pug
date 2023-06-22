@@ -3,7 +3,7 @@ const del = require("del");
 const browserSync = require("browser-sync");
 const notify = require("gulp-notify");
 const plumber = require("gulp-plumber");
-const ejs = require("gulp-ejs");
+const pug = require("gulp-pug");
 const rename = require("gulp-rename");
 const sass = require("gulp-sass");
 sass.compiler = require("sass");
@@ -47,15 +47,24 @@ gulp.task("browser", function (done) {
     done();
   });
 });
-// ejsのコンパイル
-gulp.task("ejs", (done) => {
+// Pugのコンパイルタスク
+gulp.task("pug", function () {
   return gulp
-    .src(["src/ejs/**/*.ejs", "!" + "src/ejs/**/_*.ejs"])
-    .pipe(ejs())
-    .pipe(plumber())
-    .pipe(rename({ extname: ".html" }))
+    .src(["src/pug/**/*.pug", "!" + "src/pug/**/_*.pug"])
+    .pipe(
+      plumber({ errorHandler: notify.onError("Error: <%= error.message %>") })
+    )
+    .pipe(
+      pug({
+        pretty: true,
+      })
+    )
+    .pipe(
+      htmlbeautify({
+        indent_size: 4,
+      })
+    )
     .pipe(gulp.dest("./dist"));
-  done();
 });
 
 gulp.task("sass", (done) => {
@@ -104,7 +113,7 @@ gulp.task("imagemin", function () {
 // コピータスク
 gulp.task("copy", (done) => {
   return gulp
-    .src(["src/**/*", "!**/*.scss", "!src/ejs/**"])
+    .src(["src/**/*", "!**/*.scss", "!src/pug/**"])
     .pipe(gulp.dest("dist"));
   done();
 });
@@ -118,7 +127,7 @@ gulp.task("clean-dist", function (done) {
 // watchタスク
 gulp.task("watch", (done) => {
   gulp.watch("src/**/*.scss", gulp.task("sass"));
-  gulp.watch("src/ejs/**/*.ejs", gulp.task("ejs"));
+  gulp.watch("src/pug/**/*.pug", gulp.task("pug"));
   gulp.watch(
     "src/assets/images/**/*.{jpg,jpeg,png,gif,svg,webp}",
     gulp.task("imagecopy")
@@ -129,11 +138,11 @@ gulp.task("watch", (done) => {
 // 納品フォルダ作成タスク
 gulp.task(
   "ftp",
-  gulp.series("clean", "ejs", "sass", "copy", "imagemin", "clean-dist")
+  gulp.series("clean", "sass", "pug", "copy", "imagemin", "clean-dist")
 );
 
 // デフォルトタスク
 gulp.task(
   "default",
-  gulp.series(gulp.parallel("browser", "ejs", "sass", "imagecopy", "watch"))
+  gulp.series(gulp.parallel("browser", "sass", "imagecopy", "pug", "watch"))
 );
