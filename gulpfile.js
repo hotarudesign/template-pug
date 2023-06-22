@@ -1,18 +1,27 @@
-var gulp = require("gulp");
-var del = require("del");
-var browserSync = require("browser-sync");
-var notify = require("gulp-notify");
-var plumber = require("gulp-plumber");
-var pug = require("gulp-pug");
-var sass = require("gulp-sass");
+const gulp = require("gulp");
+const del = require("del");
+const browserSync = require("browser-sync");
+const notify = require("gulp-notify");
+const plumber = require("gulp-plumber");
+const ejs = require("gulp-ejs");
+const rename = require("gulp-rename");
+const sass = require("gulp-sass");
 sass.compiler = require("sass");
-var autoprefixer = require("gulp-autoprefixer");
-var imagemin = require("gulp-imagemin");
-var pngquant = require("imagemin-pngquant");
-var mozjpeg = require("imagemin-mozjpeg");
-var htmlbeautify = require("gulp-html-beautify");
-var php = require("gulp-connect-php");
+const autoprefixer = require("gulp-autoprefixer");
+const imagemin = require("gulp-imagemin");
+const pngquant = require("imagemin-pngquant");
+const mozjpeg = require("imagemin-mozjpeg");
+const htmlbeautify = require("gulp-html-beautify");
+const php = require("gulp-connect-php");
 
+const paths = {
+  src: {
+    scss: "src/assets/css/**/*.scss",
+  },
+  dist: {
+    css: "dist/assets/css/",
+  },
+};
 // distフォルダを削除するタスク
 gulp.task("clean", function () {
   return del("dist");
@@ -24,7 +33,7 @@ gulp.task("browser", function (done) {
     {
       port: 3000,
       livereload: true,
-      base: "./src/",
+      base: "./dist/",
     },
     function () {
       browserSync({
@@ -38,40 +47,37 @@ gulp.task("browser", function (done) {
     done();
   });
 });
-
-// Pugのコンパイルタスク
-gulp.task("pug", function () {
+// ejsのコンパイル
+gulp.task("ejs", (done) => {
   return gulp
-    .src("src/**/*.pug", "!src/**/_*.pug")
-    .pipe(
-      plumber({ errorHandler: notify.onError("Error: <%= error.message %>") })
-    )
-    .pipe(
-      pug({
-        pretty: true,
-      })
-    )
-    .pipe(
-      htmlbeautify({
-        indent_size: 4,
-      })
-    )
-    .pipe(gulp.dest("./src"));
+    .src(["src/ejs/**/*.ejs", "!" + "src/ejs/**/_*.ejs"])
+    .pipe(ejs())
+    .pipe(plumber())
+    .pipe(rename({ extname: ".html" }))
+    .pipe(gulp.dest("./dist"));
+  done();
 });
 
-// Sassのコンパイルタスク
-gulp.task("sass", function () {
-  return gulp
-    .src("src/**/*.scss", { base: "./scss" })
+gulp.task("sass", (done) => {
+  gulp
+    .src(paths.src.scss)
     .pipe(
       sass({
         outputStyle: "expanded",
       })
     )
     .pipe(autoprefixer())
-    .pipe(gulp.dest("./css"));
+    .pipe(gulp.dest(paths.dist.css));
+  done();
 });
 
+// imageコピータスク
+gulp.task("imagecopy", (done) => {
+  return gulp
+    .src("src/assets/images/**/*.{jpg,jpeg,png,gif,svg,webp}")
+    .pipe(gulp.dest("./dist/assets/images/"));
+  done();
+});
 //　画像圧縮タスク
 gulp.task("imagemin", function () {
   return gulp
@@ -96,30 +102,38 @@ gulp.task("imagemin", function () {
 });
 
 // コピータスク
-gulp.task("copy", function () {
-  return gulp.src(["src/**/*", "!**/*.scss"]).pipe(gulp.dest("dist"));
+gulp.task("copy", (done) => {
+  return gulp
+    .src(["src/**/*", "!**/*.scss", "!src/ejs/**"])
+    .pipe(gulp.dest("dist"));
+  done();
 });
 
 // 削除タスク
 gulp.task("clean-dist", function (done) {
-  del(["dist/**/*.pug", "dist/**/*.scss", "dist/**/*.css.map"]);
+  del(["dist/**/*.scss", "dist/**/*.css.map"]);
   done();
 });
 
 // watchタスク
-gulp.task("watch", function () {
+gulp.task("watch", (done) => {
   gulp.watch("src/**/*.scss", gulp.task("sass"));
-  gulp.watch("src/**/*.pug", gulp.task("pug"));
+  gulp.watch("src/ejs/**/*.ejs", gulp.task("ejs"));
+  gulp.watch(
+    "src/assets/images/**/*.{jpg,jpeg,png,gif,svg,webp}",
+    gulp.task("imagecopy")
+  );
+  done();
 });
 
 // 納品フォルダ作成タスク
 gulp.task(
   "ftp",
-  gulp.series("clean", "pug", "sass", "copy", "imagemin", "clean-dist")
+  gulp.series("clean", "ejs", "sass", "copy", "imagemin", "clean-dist")
 );
 
 // デフォルトタスク
 gulp.task(
   "default",
-  gulp.series(gulp.parallel("browser", "pug", "sass", "watch"))
+  gulp.series(gulp.parallel("browser", "ejs", "sass", "imagecopy", "watch"))
 );
