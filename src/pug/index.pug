@@ -1,9 +1,10 @@
-include component/_head.pug
-  <body>
-  include component/_header.pug
-    <main>
-      section.hoge
-    </main>
-    include component/_footer.pug
-  </body>
-</html>
+include component/_config.pug
+doctype html
+html(lang="ja")
+    head
+        include component/_head.pug
+    body
+        include component/_header.pug
+        main
+            include component/_sample.pug
+        include component/_footer.pug
